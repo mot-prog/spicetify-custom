@@ -573,7 +573,7 @@ html:root .main-yourLibraryX-header button { background: rgba(16,17,24,.38) !imp
 /* D) (v30 attempt — never matched: menu portals to BODY, no data-popper-placement) superseded by H) */
 
 /* E) playlist hero header gets a block (pict7) */
-html:root .main-entityHeader-container { background: rgba(26,27,38,.42) !important; border-radius: 12px; }
+html:root .main-entityHeader-container { background: transparent !important; }
 
 /* ============ CUSTOM v30d — chips, menu, tab band ============ */
 /* F) chip pills transparent; selected keeps a 1px ring so state is visible (pict1 + All|Music tabs) */
@@ -598,3 +598,18 @@ html:root .main-carouselHeader-headerText button, html:root .main-shelfHeader-Ac
 /* K) nav filter chips get .38 pills again (Playlists / By you / ...), chevrons too (picts6/7); top All|Music chips stay floating */
 html:root .main-yourLibraryX-filterArea [class*="chip__inner"] { background: rgba(16,17,24,.38) !important; border-radius: 999px; }
 html:root .main-yourLibraryX-filterArea [class*="searchCategory-carouselButton"] { background: rgba(16,17,24,.38) !important; border-radius: 999px; }
+
+/* v31 L) playlist top band = same continuous .42 panel as content (pict1 seam fix) */
+html:root .main-entityHeader-backgroundColor { background: rgba(26,27,38,.42) !important; }
+
+/* v31 M) right panel: only section cards get .38; wrappers/inner rows/headers transparent (pict2 smoothing) */
+html:root .Root__right-sidebar div:has(> [class*="nowPlayingView-section"]) { background: transparent !important; }
+html:root .Root__right-sidebar [class*="nowPlayingView-section"] [class*="legacy-box"] { background: transparent !important; }
+html:root .Root__right-sidebar [class*="nowPlayingView-sectionHeader"], html:root .Root__right-sidebar [class*="sectionHeader"] { background: transparent !important; }
+
+/* v31 N) home top tabs (All|Music|Podcasts|Audiobooks) get .38 pills + chevron (pict6 parity with nav chips) */
+html:root .Root__main-view [class*="searchCategory"] [class*="chip__inner"] { background: rgba(16,17,24,.38) !important; border-radius: 999px; }
+html:root .Root__main-view [class*="searchCategory-carouselButton"] { background: rgba(16,17,24,.38) !important; border-radius: 999px; }
+
+/* v31 O) shelf/row card images: equal heights in a line + thin gap (picts3-5) */
+html:root .Root__main-view [class*="legacy-box"]:has(.main-cardImage-imageWrapper) { height: inherit; margin-inline: 4px; }
