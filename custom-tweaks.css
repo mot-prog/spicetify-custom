@@ -551,3 +551,39 @@ html:root .main-nowPlayingView-container div:has(> [class*="main-nowPlayingView-
 /* CUSTOM v29c-2: component-scoped (panel may portal outside .Root__right-sidebar) */
 html:root .main-nowPlayingView-container [class*="a39VsF1tgWmuBGM6uZHn"],
 html:root .main-nowPlayingView-container [class*="TTAUOoM1H9hIgl6A0DvB"] { background: rgba(16,17,24,.38) !important; border-radius: 10px; }
+
+/* ============ CUSTOM v30 — screenshot round (pict1–9) ============ */
+/* A) rows: only the row card paints — title/meta/image children go transparent everywhere (pict2/3/4) */
+html:root [class*="legacy-list-row"] [class*="legacy-list-row-image"],
+html:root [class*="legacy-list-row"] [class*="legacy-list-row-title"],
+html:root [class*="legacy-list-row"] [class*="legacy-list-row-details"],
+html:root [class*="legacy-list-row"] [class*="legacy-list-row-sub"],
+html:root [class*="legacy-list-row"] [class*="legacy-image"] { background: transparent !important; }
+
+/* B) sidebar chip strip (pict1) + sticky tab band on scroll (pict8): kill wrapper paints, keep chips */
+html:root .Root__nav-bar div:has([class*="legacy-chip__inner"]) { background: transparent !important; }
+html:root .Root__main-view [class*="tabBar"],
+html:root .Root__main-view [class*="topBar"],
+html:root .Root__globalViewToasts ~ * [class*="tabBar"] { background: transparent !important; }
+html:root .main-scrollControls__action { background: transparent !important; }
+
+/* C) sidebar header icon buttons get their own discs (pict5/6) */
+html:root .main-yourLibraryX-header button { background: rgba(16,17,24,.38) !important; border-radius: 999px; }
+
+/* D) (v30 attempt — never matched: menu portals to BODY, no data-popper-placement) superseded by H) */
+
+/* E) playlist hero header gets a block (pict7) */
+html:root .main-entityHeader-container { background: rgba(16,17,24,.38) !important; border-radius: 12px; }
+
+/* ============ CUSTOM v30d — chips, menu, tab band ============ */
+/* F) chip pills transparent; selected keeps a 1px ring so state is visible (pict1 + All|Music tabs) */
+html:root [class*="legacy-chip__inner"] { background: transparent !important; }
+html:root [class*="legacy-chip__inner--selected"] { box-shadow: inset 0 0 0 1px rgba(255,255,255,.35); }
+html:root [class*="searchCategory-carouselButton"] { background: transparent !important; }
+
+/* G) wrapper band behind the All|Music|Podcasts tabs (hashed div in 1.3.4) (pict8) */
+html:root .Root__main-view div:has(> [class*="search-searchCategory"]),
+html:root .Root__main-view div:has(> div > [class*="search-searchCategory"]) { background: transparent !important; }
+
+/* H) sort/view menu portal lives at BODY level — anchor on portal shape; hide rows behind menu (pict9) */
+html:root body:has(ul[class*="encore-dark-theme"]) [class*="legacy-list-row"]:not([class*="__"]) { visibility: hidden; }
