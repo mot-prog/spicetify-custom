@@ -1,0 +1,553 @@
+/* ============ CUSTOM: glassmorphism + spacing (v3) ============ */
+/* Layer 1 — global tokens: content surfaces & popups.
+   Elevated raised to .78 so dialogs/menus stay readable & opaque-ish. */
+html:root,
+body.encore-dark-theme,
+html:root {
+  --background-base: rgba(26, 27, 38, 0.45) !important;
+  --background-base-hover: rgba(36, 40, 59, 0.55) !important;
+  --background-press: rgba(122, 162, 247, 0.18) !important;
+  --background-base-min-contrast: rgba(26, 27, 38, 0.55) !important;
+  --background-highlight: rgba(36, 40, 59, 0.5) !important;
+  --background-elevated-base: rgba(24, 25, 34, 0.78) !important;
+  --background-elevated-highlight: rgba(40, 44, 66, 0.8) !important;
+  --background-elevated-press: rgba(122, 162, 247, 0.22) !important;
+  --background-tinted-base: rgba(24, 25, 34, 0.72) !important;
+  --background-tinted-highlight: rgba(40, 44, 66, 0.78) !important;
+  --background-tinted-press: rgba(122, 162, 247, 0.25) !important;
+  --background-noise: transparent !important;
+}
+
+/* Layer 2 — Sleek paints these Root wrappers with SOLID colors; turn them to glass */
+.Root__globalNav {
+  background-color: rgba(22, 22, 30, 0.5) !important;
+}
+.Root__nav-bar {
+  background: transparent !important;
+  background-image: none !important;
+}
+.Root__now-playing-bar {
+  background-color: rgba(22, 22, 30, 0.5) !important;
+}
+.Root__right-sidebar { background: transparent !important; }
+
+/* Dialogs/menus: force solid surfaces regardless of tokens */
+[role="dialog"],
+[role="menu"],
+[role="listbox"],
+.generic-dialog {
+  --background-elevated-base: #1a1b26 !important;
+  --background-base: #1a1b26 !important;
+  --background-tinted-base: #24283b !important;
+  background-color: #1a1b26 !important;
+}
+
+/* Layer 3 — ambient wash behind everything (TokyoNight glows) */
+.Root__top-container {
+  background:
+    radial-gradient(85% 65% at 12% -8%, rgba(var(--spice-rgb-main-secondary), 1.0) 0%, transparent 60%),
+    radial-gradient(60% 50% at 85% 0%, rgba(var(--spice-rgb-button), 0.30) 0%, transparent 55%),
+    radial-gradient(70% 60% at 100% 100%, rgba(var(--spice-rgb-button-active), 0.20) 0%, transparent 50%),
+    radial-gradient(55% 45% at 0% 100%, rgba(var(--spice-rgb-notification-error), 0.12) 0%, transparent 45%),
+    var(--spice-main) !important;
+}
+
+/* Layer 4 — frosted blur on the glass panels */
+@supports (backdrop-filter: blur(4px)) {
+  .Root__globalNav,
+  .Root__nav-bar > *,
+  .Root__now-playing-bar .main-nowPlayingBar-container,
+  .Root__right-sidebar .main-rightSidebar-container,
+  .Root__right-sidebar-peekContent,
+  .main-nowPlayingView-container {
+    backdrop-filter: blur(22px) saturate(1.25);
+  }
+}
+
+/* Sidebar breathing room */
+.main-yourLibraryX-entryPoints { padding-block: 4px; }
+
+/* v3.1 — search dropdown was painting BEHIND page content: the blur made
+   .Root__globalNav a stacking context ordered before main-view. Raise it
+   (modals live outside #main so they still overlay everything). */
+.Root__globalNav { z-index: 20 !important; }
+#search-dropdown { z-index: 30; }
+/* Add-to-playlist / filter fields inside dialogs: solid input surface */
+[role="dialog"] .x-filterBox-filterInput,
+.generic-dialog .x-filterBox-filterInput {
+  background-color: rgba(41, 46, 66, 0.9) !important;
+}
+
+/* v3.2 — stronger wash + glassier surfaces + breathing room */
+.Root__top-container {
+  background:
+    radial-gradient(90% 70% at 12% -8%, rgba(var(--spice-rgb-main-secondary), 1.0) 0%, transparent 62%),
+    radial-gradient(65% 55% at 85% 0%, rgba(var(--spice-rgb-button), 0.55) 0%, transparent 58%),
+    radial-gradient(75% 65% at 100% 100%, rgba(var(--spice-rgb-button-active), 0.35) 0%, transparent 55%),
+    radial-gradient(60% 50% at 0% 100%, rgba(var(--spice-rgb-notification-error), 0.25) 0%, transparent 50%),
+    var(--spice-main) !important;
+}
+html:root {
+  --background-base: rgba(26, 27, 38, 0.35) !important;
+  --background-tinted-base: rgba(24, 25, 34, 0.5) !important;
+}
+.Root__globalNav { background-color: rgba(22, 22, 30, 0.42) !important; }
+.Root__now-playing-bar { background-color: rgba(22, 22, 30, 0.42) !important; }
+.main-yourLibraryX-libraryContainer { background-color: rgba(22, 22, 30, 0.32) !important; }
+/* air in the sidebar list */
+.main-yourLibraryX-navLink { min-height: 40px; }
+.main-yourLibraryX-navItem { padding-block: 3px; }
+.main-yourLibraryX-entryList { padding-bottom: 12px; }
+
+/* v4 — blurred cover background + song-color glow (cover-bg.js) */
+.acp-cover-bg {
+  position: absolute;
+  inset: -12%;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(80px) saturate(1.4) brightness(0.78);
+  opacity: 0;
+  transition: opacity 1.6s ease;
+  pointer-events: none;
+}
+.acp-song-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.6s ease;
+  background:
+    radial-gradient(60% 50% at 15% 0%, rgba(var(--song-c1, 26, 27, 38), 0.14) 0%, transparent 60%),
+    radial-gradient(50% 45% at 85% 8%, rgba(var(--song-c2, 26, 27, 38), 0.10) 0%, transparent 55%),
+    radial-gradient(55% 50% at 70% 100%, rgba(var(--song-c3, 26, 27, 38), 0.12) 0%, transparent 55%);
+}
+.acp-song-glow.on { opacity: 1; }
+
+/* v4 — T2: rounded pill rows + airier spacing in track lists */
+.main-trackList-trackList { row-gap: 4px; }
+.main-trackList-trackListRow {
+  border-radius: 10px;
+  margin-inline: 10px;
+  min-height: 54px;
+  width: auto;
+}
+.main-trackList-trackListHeader {
+  margin-inline: 10px;
+  padding-inline: 14px;
+}
+.main-trackList-rowImageWithPlay,
+.main-trackList-rowTitle { align-self: center; }
+
+/* v4.1 — filter boxes (sidebar library filter + in-playlist search): were bare 10% tints */
+.x-filterBox {
+  background: rgba(36, 40, 59, 0.92) !important;
+  border: 1px solid rgba(192, 202, 245, 0.12) !important;
+  border-radius: 8px !important;
+}
+.x-filterBox .x-filterBox-filterInput {
+  background: transparent !important;
+}
+
+/* ================================================================
+   v4.2 — make the glass + cover background clearly VISIBLE
+   ================================================================ */
+/* stronger wash over the blurred cover */
+.Root__top-container {
+  background:
+    radial-gradient(65% 55% at 12% 0%, rgba(var(--song-c1, var(--spice-rgb-secondary)), 0.32) 0%, transparent 62%),
+    radial-gradient(55% 45% at 88% 4%, rgba(var(--song-c2, var(--spice-rgb-button)), 0.20) 0%, transparent 58%),
+    radial-gradient(50% 45% at 78% 96%, rgba(var(--song-c3, var(--spice-rgb-button-active)), 0.16) 0%, transparent 58%),
+    linear-gradient(160deg, rgba(22, 22, 30, 0.75) 0%, rgba(26, 27, 38, 0.65) 100%) !important;
+}
+.acp-cover-bg {
+  filter: blur(60px) saturate(2.5) brightness(1.3) !important;
+  opacity: 0.92 !important;
+}
+.acp-song-glow {
+  background:
+    radial-gradient(65% 55% at 15% 0%, rgba(var(--song-c1, 26, 27, 38), 0.30) 0%, transparent 62%),
+    radial-gradient(55% 50% at 85% 8%, rgba(var(--song-c2, 26, 27, 38), 0.22) 0%, transparent 56%),
+    radial-gradient(60% 55% at 70% 100%, rgba(var(--song-c3, 26, 27, 38), 0.26) 0%, transparent 58%) !important;
+}
+/* glass panels slightly more opaque so contrast reads */
+html:root, body.encore-dark-theme {
+  --background-base: rgba(26, 27, 38, 0.42) !important;
+  --background-tinted-base: rgba(36, 40, 59, 0.55) !important;
+}
+
+/* ============ v5: Frostify-inspired flourishes (modern selectors) ============ */
+.Root__top-container { --song-c1: 161,181,211; --song-c2: 120,160,255; --song-c3: 148,163,216; }
+
+/* animated song-color progress bar */
+.playback-bar .x-progressBar-fillColor,
+.playback-bar .x-progressBar-progressFillColor {
+  background-image: linear-gradient(90deg, rgb(var(--song-c1)), rgb(var(--song-c3)), rgb(var(--song-c1))) !important;
+  background-size: 200% 100% !important;
+  animation: acpFlow 9s linear infinite !important;
+}
+@keyframes acpFlow { to { background-position: -200% 0; } }
+
+/* thin rounded invisible-track scrollbars */
+::-webkit-scrollbar { width: 8px !important; height: 8px !important; background: transparent !important; }
+::-webkit-scrollbar-thumb { background: rgba(192,202,245,.28) !important; border-radius: 8px !important; }
+::-webkit-scrollbar-thumb:hover { background: rgba(192,202,245,.45) !important; }
+::-webkit-scrollbar-button, ::-webkit-scrollbar-corner { display: none !important; background: transparent !important; }
+
+/* card hover lift */
+.main-card--vertical, .main-card-horizontal-container, .main-card-img--container { transition: transform .18s ease, box-shadow .18s ease; }
+.main-card--vertical:hover, .main-card-horizontal-container:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,0,0,.35); }
+
+/* legibility shadows over the wash */
+.main-entityHeader-title, .main-homeHomeHeader-container h1 { text-shadow: 0 2px 18px rgba(0,0,0,.55); }
+
+
+/* ═══ v7: one-surface look — fixes pict1..pict5 (purely visual, no layout hooks) ═══ */
+
+/* (pict4) Sleek floats the whole playback-bar above the bar; snap it back
+   into the player controls where it belongs */
+html:not(.fullscreen) .playback-bar {
+  position: static !important;
+  width: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: none !important;
+}
+.main-nowPlayingBar-nowPlayingBar:nth-last-child(2) .playback-bar { bottom: auto !important; }
+
+/* (slow bar) Spotify smooths progress with a 1s transform — too slow when
+   seeking; make sliders instant-ish while staying smooth in playback */
+.x-progressBar-fillColor, .x-progressBar-progressFillColor,
+.x-progressBar-sliderArea, .x-slider-leftFill, .x-slider-rightFill {
+  transition-duration: .12s !important;
+}
+/* timestamp/volume bubble: no entrance animation */
+.main-sliderBubble-container, [class*="SliderBubble"], [class*="TextBubble"] {
+  animation: none !important;
+  transition: opacity .08s linear, left .08s linear, right .08s linear, bottom .08s linear !important;
+}
+
+/* (pict1/pict3) one continuous surface: flatten the blocky panels */
+.Root__globalNav {
+  background-color: rgba(22, 22, 30, 0.22) !important;
+  backdrop-filter: blur(10px) !important;
+  margin-bottom: 0 !important;
+  padding-block: 4px !important;
+}
+.Root__nav-bar {
+  background: transparent !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  border-radius: 0 !important;
+}
+.Root__main-view { border-radius: 0 !important; }
+.main-nowPlayingBar-container { border-radius: 0 !important; margin: 0 !important; }
+/* (pict3) the little grey drag-pill on the sidebar seam */
+.LayoutResizer__resize-bar { opacity: 0 !important; }
+/* no horizontal scrollbar leaks in the sidebar */
+.Root__nav-bar { overflow-x: hidden !important; }
+
+/* (pict5) crisp, nearly-solid context/dropdown menus over the wash */
+[role="menu"], .main-contextMenu-menu, .menu-contextMenu, [class*="contextMenu-menu"] {
+  background: rgba(24, 25, 35, 0.97) !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.55) !important;
+  border: 1px solid rgba(192, 202, 245, 0.10) !important;
+}
+
+/* sidebar + list row hover: wash + underline via box-shadow only —
+   NO position/pseudo-elements (v6 broke click targeting by re-anchoring
+   Sleek's icon-mode overlays) */
+[class*="legacy-list-row"]:hover, [class*="tracklist-row"]:hover {
+  background-image: linear-gradient(90deg, rgba(var(--song-c1, 161,181,211), .13), transparent 62%) !important;
+  border-radius: 8px;
+}
+.Root__nav-bar [class*="legacy-list-row"]:hover {
+  box-shadow: inset 0 -2px 0 rgba(var(--song-c1, 161,181,211), 0.55);
+}
+
+/* (pict2) stray dark square on each sidebar row = always-shown row play
+   button; keep it hover-only */
+.Root__nav-bar [class*="legacy-list-row"] .main-playButton-PlayButton {
+  opacity: 0;
+  transition: opacity .15s ease;
+}
+.Root__nav-bar [class*="legacy-list-row"]:hover .main-playButton-PlayButton {
+  opacity: 1;
+}
+
+/* ============ v8: progress bar restore + floating nav + animated search ============ */
+/* (pict1) after snap-back the playback-bar shrunk to label width; stretch it */
+html:root .main-nowPlayingBar-center { flex: 1 1 auto !important; min-width: 0; }
+html:root .playback-bar { width: 100% !important; max-width: 1200px; margin-inline: auto; }
+html:root .playback-progressbar-container { flex: 1 1 auto !important; width: auto !important; }
+
+/* (search) globalNav becomes a transparent floating layer, left-aligned,
+   so the centered window can extend to the very top of the screen */
+html:root .Root__top-container { grid-template-rows: 0px 0px 1fr auto !important; }
+html:root .playback-bar .x-progressBar-handle,
+html:root .playback-bar .x-progressBar-handleWrapper { transition: none !important; animation: none !important; }
+html:root .playback-bar .progress-bar { --progress-bar-duration: 0ms !important; --hover-bar-duration: 0ms !important; }
+
+/* ============ v9 (user pict2): no song-COLOR wash on the menu surfaces ============
+   the blurred cover photo (cover-bg) carries all color; the tc wash goes neutral dark
+   so menus/cards never turn solid orange/blue */
+html:root .Root__top-container {
+  background-image: linear-gradient(rgba(18, 19, 28, 0.72), rgba(24, 25, 36, 0.55)) !important;
+}
+html:root .acp-song-glow { display: none !important; }
+html:root .Root__globalNav {
+  position: absolute !important; top: 0; left: 0; right: 0; z-index: 30;
+  background: transparent !important; border: none !important; box-shadow: none !important;
+  justify-content: flex-start !important; gap: 4px;
+  pointer-events: none;
+}
+html:root .Root__globalNav > * { pointer-events: auto; }
+html:root .Root__globalNav .main-globalNav-contentRight {
+  position: absolute; right: 12px; pointer-events: auto;
+}
+/* search bar collapses to its icon; glides open on focus */
+html:root .main-globalNav-searchInputSection {
+  width: 56px; overflow: hidden;
+  transition: width .35s cubic-bezier(.22, 1, .36, 1);
+}
+html:root .main-globalNav-searchInputSection:focus-within { width: 400px; }
+html:root .main-globalNav-searchInputSection input {
+  background: rgba(36, 40, 59, .55) !important;
+  border: 1px solid rgba(192, 202, 245, .12) !important;
+  border-radius: 18px !important;
+}
+html:root .main-entityHeader-top { padding-top: 52px; }
+
+/* ============ v8.1: left-align the search/home pill inside globalNav ============ */
+html:root .Root__globalNav .main-globalNav-searchSection {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  max-width: 640px;
+  order: 1;
+  margin-left: 10px;
+}
+
+/* ============ v10 (user m02075) ============ */
+/* pict1: the blurry band over the top = backdrop blur on the floating
+   globalNav layer. Kill every blur/bg on it — pills float, no frosted strip. */
+html:root .Root__globalNav {
+  background: transparent !important;
+  backdrop-filter: none !important;
+}
+/* pict2: remove album-color from the content panel — make main-view
+   nearly opaque so the cover photo can't tint the menus */
+html:root .Root__main-view { background: rgba(21, 22, 31, 0.93) !important; }
+/* ball lag: Sleek animates .progress-bar__slider with `left 1s linear` */
+html:root .playback-bar .progress-bar__slider { transition: none !important; }
+
+/* ============ CUSTOM v11 ============ */
+/* kill Spotify's native artwork route-color band at top of content (home/playlist) */
+html:root .Root__main-view div[style*="background-color"] { background-color: transparent !important; background-image: none !important }
+/* volume + any other slider handle: same instant snap as progress bar */
+html:root .progress-bar__slider { transition: none !important; animation: none !important }
+
+/* ============ CUSTOM v12: unified window (no panel backgrounds) ============ */
+html:root .Root__main-view,
+html:root .Root__nav-bar,
+html:root .Root__right-sidebar,
+html:root .Root__now-playing-bar,
+html:root .Root__globalNav {
+  background: transparent !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+}
+/* deepen the veil over the cover so text keeps contrast */
+html:root .Root__top-container {
+  background-image: linear-gradient(rgba(14,15,22,.62), rgba(14,15,22,.5) 45%, rgba(14,15,22,.62)) !important;
+}
+/* readability on lighter/blurred backdrop: soft dark halo on text */
+html:root .Root__nav-bar [class*="legacy-list-row"],
+html:root .main-entityHeader-title, html:root .main-view-container h1,
+html:root .main-view-container h2, html:root [class*="sectionHeader"],
+html:root [class*="homeSection"], html:root .main-trackList-rowTitle,
+html:root .main-nowPlayingWidget-trackArtist, html:root .main-nowPlayingBar-info *,
+html:root .playback-bar, html:root [class*="artcard"] *, html:root .Root__right-sidebar * {
+  text-shadow: 0 1px 3px rgba(0,0,0,.75), 0 0 14px rgba(0,0,0,.35);
+}
+/* v13: ONE uniform surface per card/row — v12 matched row INNER boxes (__header, __on-click,
+   legacy-box) so stacked .38 layers made patchy darker rectangles. Exclude __ fragments. */
+html:root [class*="legacy-list-row"]:not([class*="__"]):not(:hover),
+html:root .view-homeShortcutsGrid-shortcut {
+  background: rgba(16,17,24,.38) !important;
+  border-radius: 8px;
+}
+/* right panel boxes: same background rules as the left sidebar rows (user request) */
+html:root .Root__right-sidebar [class*="legacy-box"]:not([class*="__"]),
+html:root .Root__right-sidebar [class*="encore-box"]:not([class*="__"]) {
+  background: rgba(16,17,24,.38) !important;
+}
+html:root .Root__right-sidebar { border-left: 1px solid rgba(192,202,245,.08) }
+
+/* v12b: heavier blur + slightly deeper veil so saturated art doesn't fight text */
+html:root .acp-cover-bg { filter: blur(70px) saturate(1.2) brightness(1.35) contrast(0.95) !important; opacity: .9 !important }
+html:root .Root__top-container {
+  background-image: linear-gradient(rgba(14,15,22,.60), rgba(14,15,22,.46) 45%, rgba(14,15,22,.60)) !important;
+}
+
+/* ============================================================
+   CUSTOM v14 — uniform unified-window background (user's "pict2" look)
+   Only ONE translucent veil behind everything; cards/rows/panels all
+   transparent, surfaces kept ONLY on: npb, dialogs, chips, hover.
+   ============================================================ */
+html:root [class*="legacy-list-row"],
+html:root [class*="legacy-box"],
+html:root .main-cardEncore-box,
+html:root .main-card-card,
+html:root .main-entityHeader-container,
+html:root .main-home-content section {
+  background: transparent !important;
+}
+/* right side-panel: drop the frost, keep it see-through */
+html:root .Root__right-sidebar,
+html:root .Root__right-sidebar > div,
+html:root .Root__right-sidebar .main-nowPlayingView-container {
+  background: transparent !important;
+  backdrop-filter: none !important;
+}
+/* the .38 whispers: gone — one uniform background, per user */
+html:root [class*="legacy-list-row"]:not([class*="__"]):not(:hover),
+html:root .view-homeShortcutsGrid-shortcut,
+html:root .Root__right-sidebar [class*="legacy-box"]:not([class*="__"]),
+html:root .Root__right-sidebar [class*="encore-box"]:not([class*="__"]) {
+  background: transparent !important;
+}
+
+/* ============================================================
+   CUSTOM v15 — correction: user wants INDIVIDUAL blocks back.
+   Giant panel backgrounds stay transparent; cards/rows/boxes get
+   the .38 whisper surface again. (Later rules win in user.css.)
+   ============================================================ */
+html:root [class*="legacy-list-row"],
+html:root [class*="legacy-box"],
+html:root .main-card-card,
+html:root .view-homeShortcutsGrid-shortcut {
+  background: transparent !important;
+}
+html:root [class*="legacy-list-row"]:not([class*="__"]):not(:hover),
+html:root [class*="legacy-box"]:not([class*="__"]):not(:hover),
+html:root .main-card-card:not(:hover),
+html:root .view-homeShortcutsGrid-shortcut:not(:hover) {
+  background: rgba(16,17,24,.38) !important;
+  border-radius: 8px;
+}
+/* side panels: the BLACK is not a background — it's the native frost layer.
+   Kill it: no bg, no backdrop-filter anywhere inside the panels. */
+html:root .Root__nav-bar,
+html:root .Root__right-sidebar,
+html:root .Root__right-sidebar > div,
+html:root .Root__right-sidebar > div > div,
+html:root .Root__right-sidebar [class*="main-nowPlayingView"],
+html:root .Root__left-sidebar {
+  background: transparent !important;
+  backdrop-filter: none !important;
+}
+
+/* ============================================================
+   CUSTOM v16 — sides still black: they paint via CSS custom props
+   (--left-surface etc.) consumed by Sleek base rules. Neutralize.
+   ============================================================ */
+html:root, .encore-dark-theme {
+  --left-surface: transparent !important;
+  --left-surface-base: transparent !important;
+  --left-surface-highlight: rgba(192, 202, 245, 0.08) !important;
+  --nav-base: transparent !important;
+  --main-view-background: transparent !important;
+  --nowPlayingBar-bg-color: rgba(22, 22, 30, 0.42) !important;
+}
+html:root .Root__nav-bar,
+html:root .Root__right-sidebar {
+  background-color: transparent !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+/* ===== CUSTOM v17 — kill Sleek's own library-container paints (the "big block") ===== */
+html:root .Root__nav-bar > *,
+html:root .Root__nav-bar [class*="yourLibraryX"]:not([class*="legacy-list-row"]):not([class*="__"]),
+html:root .main-yourLibraryX-libraryContainer,
+html:root .main-yourLibraryX-navList,
+html:root .main-yourLibraryX-header,
+html:root .Root__right-sidebar > div > div > * {
+  background: transparent !important;
+  backdrop-filter: none !important;
+}
+
+/* ============ CUSTOM v15 — v14 over-corrected: kill the NAV COLUMN wash
+   (libraryContainer .32 = the "big block"), restore .38 surfaces on ALL
+   individual blocks (user's pict1 = reference look) ============ */
+html:root .main-yourLibraryX-libraryContainer { background: transparent !important }
+html:root [class*="legacy-list-row"]:not([class*="__"]):not(:hover),
+html:root .view-homeShortcutsGrid-shortcut,
+html:root .main-card-card,
+html:root .Root__right-sidebar [class*="legacy-box"]:not([class*="__"]),
+html:root .Root__right-sidebar [class*="encore-box"]:not([class*="__"]) {
+  background: rgba(16,17,24,.38) !important;
+  border-radius: 8px;
+}
+
+/* ============ CUSTOM v20 — right panel was double-painted (outer box +
+   inner boxes stacked .38 => opaque black); paint LEAF boxes only.
+   Add breathing room between sidebar rows ============ */
+html:root .Root__right-sidebar [class*="legacy-box"]:has([class*="legacy-box"]),
+html:root .Root__right-sidebar [class*="encore-box"]:has([class*="encore-box"]) {
+  background: transparent !important;
+}
+html:root .Root__nav-bar [class*="legacy-list-row"]:not([class*="__"]) {
+  margin-bottom: 6px;
+}
+html:root .Root__right-sidebar > * > [class*="legacy-box"]:not([class*="__"]),
+html:root .Root__right-sidebar [class*="legacy-box"]:not([class*="__"]):not(:has([class*="legacy-box"])) {
+  margin-bottom: 10px;
+}
+
+/* ============ CUSTOM v21 — rows contained painted TEXT boxes (title/meta
+   legacy-boxes inside the row stacked their own .38). Row surface only;
+   every descendant stays transparent. ============ */
+html:root .Root__nav-bar [class*="legacy-list-row"] * {
+  background: transparent !important;
+}
+
+/* CUSTOM v23: right panel — native cards keep ONE surface; nested chip boxes transparent */
+html:root .Root__right-sidebar [class*="legacy-box"]:not([class*="__"]),
+html:root .Root__right-sidebar [class*="encore-box"]:not([class*="__"]),
+html:root .Root__right-sidebar [class*="legacy-box"] * { background: transparent !important; backdrop-filter: none !important; }
+
+/* CUSTOM v24: kill v20 leaf-box .38 inside right panel (needs same specificity to win) */
+html:root .Root__right-sidebar [class*="legacy-box"]:not([class*="__"]):not(:has(*)),
+html:root .Root__right-sidebar [class*="encore-box"]:not([class*="__"]):not(:has(*)) {
+  background: transparent !important;
+}
+
+/* CUSTOM v25: right panel cards contain legacy-list-row-details rows — my global row rule painted them.
+   who-paints.js proved it. Neutralize inside right sidebar only. */
+html:root .Root__right-sidebar [class*="legacy-list-row"]:not(:hover),
+html:root .Root__right-sidebar [class*="legacy-list-row"] * { background: transparent !important; }
+
+/* CUSTOM v26: right panel — one surface per card. Spotify paints an inner .78 panel on top of the
+   .42 card (lyrics/about blocks); flatten inner layers to transparent. Obfuscated native classes. */
+html:root .Root__right-sidebar [class*="aJp25Hy7qykJLES3mRWi"],
+html:root .Root__right-sidebar [class*="aN6RjOsDo5DSOGDMRF2G"],
+html:root .Root__right-sidebar [class*="Jok4srqTEJ8MiJb08Nz1"] { background: transparent !important; }
+
+/* CUSTOM v27: right panel native card surfaces = exact whisper tone */
+html:root .Root__right-sidebar [class*="legacy-box"],
+html:root .Root__right-sidebar [class*="encore-box"] { background: transparent !important; backdrop-filter: none !important; }
+
+/* CUSTOM v29b: right nowPlayingView — was TWO nested .42 washes (aside>div). Flatten washes,
+   paint only the leaf section-cards with the single .38 whisper (gaps let cover show between cards).
+   Structure: .main-nowPlayingView-container > aside(.42) > div(.42) > cards(.78/.55/.0) */
+html:root .main-nowPlayingView-container > aside,
+html:root .main-nowPlayingView-container > aside > div:first-child { background: transparent !important; }
+html:root .main-nowPlayingView-container div:has(> [class*="main-nowPlayingView-section"]) { background: rgba(16,17,24,.38) !important; border-radius: 10px; }
+
+/* CUSTOM v29c-2: component-scoped (panel may portal outside .Root__right-sidebar) */
+html:root .main-nowPlayingView-container [class*="a39VsF1tgWmuBGM6uZHn"],
+html:root .main-nowPlayingView-container [class*="TTAUOoM1H9hIgl6A0DvB"] { background: rgba(16,17,24,.38) !important; border-radius: 10px; }

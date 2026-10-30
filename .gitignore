@@ -1,0 +1,23 @@
+# debug/one-off scripts and captures (dev only)
+/*.js
+/*.png
+/*.out
+node_modules/
+.npm-cache/
+*.log
+spot-dbg*
+*.bak
+# personal config, backups, build output — not part of the theme
+config-xpui.ini
+user.css.baked
+v6-draft.css
+probe-out.json
+probe2.out
+snippets.json
+spicetify.d.ts
+TODO*
+.dsh/
+tools/
+CustomApps
+Extensions
+Themes
