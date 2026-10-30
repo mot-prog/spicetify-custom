@@ -363,7 +363,7 @@ html:root .Root__top-container {
   background-image: linear-gradient(rgba(14,15,22,.62), rgba(14,15,22,.5) 45%, rgba(14,15,22,.62)) !important;
 }
 /* readability on lighter/blurred backdrop: soft dark halo on text */
-html:root .Root__nav-bar [class*="legacy-list-row"],
+html:root .Root__nav-bar [class*="legacy-list-row"]:not([class*="e-10860-text"]),
 html:root .main-entityHeader-title, html:root .main-view-container h1,
 html:root .main-view-container h2, html:root [class*="sectionHeader"],
 html:root [class*="homeSection"], html:root .main-trackList-rowTitle,
@@ -373,7 +373,7 @@ html:root .playback-bar, html:root [class*="artcard"] *, html:root .Root__right-
 }
 /* v13: ONE uniform surface per card/row — v12 matched row INNER boxes (__header, __on-click,
    legacy-box) so stacked .38 layers made patchy darker rectangles. Exclude __ fragments. */
-html:root [class*="legacy-list-row"]:not([class*="__"]):not(:hover),
+html:root [class*="legacy-list-row"]:not([class*="__"]):not([class*="e-10860-text"]):not(:hover),
 html:root .view-homeShortcutsGrid-shortcut {
   background: rgba(16,17,24,.38) !important;
   border-radius: 8px;
@@ -396,7 +396,7 @@ html:root .Root__top-container {
    Only ONE translucent veil behind everything; cards/rows/panels all
    transparent, surfaces kept ONLY on: npb, dialogs, chips, hover.
    ============================================================ */
-html:root [class*="legacy-list-row"],
+html:root [class*="legacy-list-row"]:not([class*="e-10860-text"]),
 html:root [class*="legacy-box"],
 html:root .main-cardEncore-box,
 html:root .main-card-card,
@@ -412,7 +412,7 @@ html:root .Root__right-sidebar .main-nowPlayingView-container {
   backdrop-filter: none !important;
 }
 /* the .38 whispers: gone — one uniform background, per user */
-html:root [class*="legacy-list-row"]:not([class*="__"]):not(:hover),
+html:root [class*="legacy-list-row"]:not([class*="__"]):not([class*="e-10860-text"]):not(:hover),
 html:root .view-homeShortcutsGrid-shortcut,
 html:root .Root__right-sidebar [class*="legacy-box"]:not([class*="__"]),
 html:root .Root__right-sidebar [class*="encore-box"]:not([class*="__"]) {
@@ -424,13 +424,13 @@ html:root .Root__right-sidebar [class*="encore-box"]:not([class*="__"]) {
    Giant panel backgrounds stay transparent; cards/rows/boxes get
    the .38 whisper surface again. (Later rules win in user.css.)
    ============================================================ */
-html:root [class*="legacy-list-row"],
+html:root [class*="legacy-list-row"]:not([class*="e-10860-text"]),
 html:root [class*="legacy-box"],
 html:root .main-card-card,
 html:root .view-homeShortcutsGrid-shortcut {
   background: transparent !important;
 }
-html:root [class*="legacy-list-row"]:not([class*="__"]):not(:hover),
+html:root [class*="legacy-list-row"]:not([class*="__"]):not([class*="e-10860-text"]):not(:hover),
 html:root [class*="legacy-box"]:not([class*="__"]):not(:hover),
 html:root .main-card-card:not(:hover),
 html:root .view-homeShortcutsGrid-shortcut:not(:hover) {
@@ -484,7 +484,7 @@ html:root .Root__right-sidebar > div > div > * {
    (libraryContainer .32 = the "big block"), restore .38 surfaces on ALL
    individual blocks (user's pict1 = reference look) ============ */
 html:root .main-yourLibraryX-libraryContainer { background: transparent !important }
-html:root [class*="legacy-list-row"]:not([class*="__"]):not(:hover),
+html:root [class*="legacy-list-row"]:not([class*="__"]):not([class*="e-10860-text"]):not(:hover),
 html:root .view-homeShortcutsGrid-shortcut,
 html:root .main-card-card,
 html:root .Root__right-sidebar [class*="legacy-box"]:not([class*="__"]),
@@ -500,7 +500,7 @@ html:root .Root__right-sidebar [class*="legacy-box"]:has([class*="legacy-box"]),
 html:root .Root__right-sidebar [class*="encore-box"]:has([class*="encore-box"]) {
   background: transparent !important;
 }
-html:root .Root__nav-bar [class*="legacy-list-row"]:not([class*="__"]) {
+html:root .Root__nav-bar [class*="legacy-list-row"]:not([class*="__"]):not([class*="e-10860-text"]) {
   margin-bottom: 6px;
 }
 html:root .Root__right-sidebar > * > [class*="legacy-box"]:not([class*="__"]),
@@ -573,7 +573,7 @@ html:root .main-yourLibraryX-header button { background: rgba(16,17,24,.38) !imp
 /* D) (v30 attempt — never matched: menu portals to BODY, no data-popper-placement) superseded by H) */
 
 /* E) playlist hero header gets a block (pict7) */
-html:root .main-entityHeader-container { background: rgba(16,17,24,.38) !important; border-radius: 12px; }
+html:root .main-entityHeader-container { background: rgba(26,27,38,.42) !important; border-radius: 12px; }
 
 /* ============ CUSTOM v30d — chips, menu, tab band ============ */
 /* F) chip pills transparent; selected keeps a 1px ring so state is visible (pict1 + All|Music tabs) */
@@ -586,4 +586,15 @@ html:root .Root__main-view div:has(> [class*="search-searchCategory"]),
 html:root .Root__main-view div:has(> div > [class*="search-searchCategory"]) { background: transparent !important; }
 
 /* H) sort/view menu portal lives at BODY level — anchor on portal shape; hide rows behind menu (pict9) */
-html:root body:has(ul[class*="encore-dark-theme"]) [class*="legacy-list-row"]:not([class*="__"]) { visibility: hidden; }
+html:root body:has(ul[class*="encore-dark-theme"]) [class*="legacy-list-row"]:not([class*="__"]):not([class*="e-10860-text"]) { visibility: hidden; }
+
+/* I) sort "Recents" button keeps no disc (picts4/6) — discs stay only on Your Library/Create/expand */
+html:root .Root__nav-bar button[class*="legacy-button--small"] { background: transparent !important; }
+
+/* J) playlist page sort dropdown + shelf header buttons: no painted pill (picts3/5) */
+html:root .x-sortBox-sortDropdown { background: transparent !important; }
+html:root .main-carouselHeader-headerText button, html:root .main-shelfHeader-ActionLink, html:root [class*="shelfHeader"] button { background: transparent !important; }
+
+/* K) nav filter chips get .38 pills again (Playlists / By you / ...), chevrons too (picts6/7); top All|Music chips stay floating */
+html:root .main-yourLibraryX-filterArea [class*="chip__inner"] { background: rgba(16,17,24,.38) !important; border-radius: 999px; }
+html:root .main-yourLibraryX-filterArea [class*="searchCategory-carouselButton"] { background: rgba(16,17,24,.38) !important; border-radius: 999px; }
