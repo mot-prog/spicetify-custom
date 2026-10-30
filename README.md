@@ -4,7 +4,6 @@ Full-window blurred album-art wallpaper, unified translucent panels that blend i
 and a spectrum in the playback bar that actually reacts to the song.
 
 ![Glass](screenshots/main.jpg)
-![Now playing panel](screenshots/right.jpg)
 
 Built on [Sleek](https://github.com/spicetify/spicetify-themes/tree/master/Sleek) + TokyoNight,
 for **spicetify 2.46.4 / Spotify 1.3.4** (Linux). Other setups untested — the CSS targets
