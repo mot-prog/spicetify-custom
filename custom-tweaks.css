@@ -615,5 +615,5 @@ html:root .Root__main-view [class*="searchCategory-carouselButton"] { background
 html:root .Root__main-view [class*="legacy-box"]:has(.main-cardImage-imageWrapper) { height: 100%; margin-inline: 4px; }
 
 /* v31c) real height parity: stretch the card wrappers (they shrank to content because cards had height:100% circularity) and reset cards to content height aligned top */
-html:root .Root__main-view [class*="searchCategory-grid"] { align-items: stretch; }
-html:root .Root__main-view [class*="legacy-box"]:has(.main-cardImage-imageWrapper) { height: normal; align-self: normal; }
+html:root .Root__main-view [class*="legacy-box"]:has(.main-cardImage-imageWrapper) { height: 100%; }
+html:root .Root__main-view div:has(> [class*="legacy-box"]:has(.main-cardImage-imageWrapper)) { height: 100%; }
