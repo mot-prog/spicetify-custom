@@ -617,3 +617,6 @@ html:root .Root__main-view [class*="legacy-box"]:has(.main-cardImage-imageWrappe
 /* v31c) real height parity: stretch the card wrappers (they shrank to content because cards had height:100% circularity) and reset cards to content height aligned top */
 html:root .Root__main-view [class*="legacy-box"]:has(.main-cardImage-imageWrapper) { height: 100%; }
 html:root [class^="TTqK"] { display: contents; }
+
+/* v32 P) uniform card widths: force equal 1fr tracks on the hashed card-grid (TTqK unwrap made tracks content-sized → mixed widths + shrink) */
+html:root .Root__main-view div:has(> [class^="TTqK"]) { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important; }
