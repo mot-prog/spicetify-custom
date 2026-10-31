@@ -612,4 +612,4 @@ html:root .Root__main-view [class*="searchCategory"] [class*="chip__inner"] { ba
 html:root .Root__main-view [class*="searchCategory-carouselButton"] { background: rgba(16,17,24,.38) !important; border-radius: 999px; }
 
 /* v31 O) shelf/row card images: equal heights in a line + thin gap (picts3-5) */
-html:root .Root__main-view [class*="legacy-box"]:has(.main-cardImage-imageWrapper) { height: inherit; margin-inline: 4px; }
+html:root .Root__main-view [class*="legacy-box"]:has(.main-cardImage-imageWrapper) { height: 100%; margin-inline: 4px; }
