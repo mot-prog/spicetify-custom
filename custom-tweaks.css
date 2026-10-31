@@ -616,4 +616,4 @@ html:root .Root__main-view [class*="legacy-box"]:has(.main-cardImage-imageWrappe
 
 /* v31c) real height parity: stretch the card wrappers (they shrank to content because cards had height:100% circularity) and reset cards to content height aligned top */
 html:root .Root__main-view [class*="legacy-box"]:has(.main-cardImage-imageWrapper) { height: 100%; }
-html:root .Root__main-view div:has(> div:not([class]) > div[class*="legacy-box"]) { display: contents; }
+html:root [class^="TTqK"] { display: contents; }
