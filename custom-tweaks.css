@@ -644,3 +644,17 @@ html:root .acp-song-glow {
     radial-gradient(55% 50% at 85% 8%, rgba(var(--song-c2, 26, 27, 38), 0.16) 0%, transparent 56%),
     radial-gradient(60% 55% at 70% 100%, rgba(var(--song-c3, 26, 27, 38), 0.18) 0%, transparent 58%) !important;
 }
+
+/* ============ CUSTOM v35 (user m00367): uniform shelf blocks ============
+   Shelf card cells are fixed-size but their text blocks wrapped to 1-3 lines,
+   so image bottoms staggered across a row. One line each, ellipsised.
+   Verified live: card__main heights 46/46/.../48 (was 46..88). */
+html:root .e-10860-card__main .e-10860-card-title,
+html:root .e-10860-card__main .e-10860-card-title span,
+html:root .e-10860-card__column > div:not(.e-10860-card__column),
+html:root .e-10860-card__column > div:not(.e-10860-card__column) * {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: block;
+}

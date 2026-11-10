@@ -8,7 +8,7 @@
 (() => {
   const WALLS_MANIFEST = "images/acp-walls.json";
   const WALLS_FALLBACK = ["images/acp-wall-01.png"];
-  const WALL_CYCLE_MS = 0; // e.g. 60000 to cycle wallpapers; 0 = static
+  const WALL_CYCLE_MS = 45000; // slideshow interval; 0 = static single wall
 
   const clamp255 = (v) => Math.round(Math.max(0, Math.min(255, v)));
 
@@ -112,12 +112,32 @@
 
   // ---------- wallpaper layer (v3) ----------
   let walls = WALLS_FALLBACK.slice();
-  let wallIdx = Math.floor(Math.random() * walls.length);
   let cur = null, nxt = null;
+  // slideshow walks a shuffled permutation, reshuffling at each cycle end
+  // (avoiding immediate repeats) instead of marching in manifest order.
+  let order = [], pos = -1, lastIdx = -1;
+  function nextWallIdx() {
+    if (pos + 1 >= order.length) {
+      order = walls.map((_, i) => i);
+      for (let i = order.length - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        [order[i], order[j]] = [order[j], order[i]];
+      }
+      if (order.length > 1 && order[0] === lastIdx) {
+        const k = 1 + ((Math.random() * (order.length - 1)) | 0);
+        [order[0], order[k]] = [order[k], order[0]];
+      }
+      pos = 0;
+    } else {
+      pos++;
+    }
+    lastIdx = order[pos];
+    return lastIdx;
+  }
 
   function paintWall(animate) {
     if (!cur) return;
-    const url = 'url("' + walls[wallIdx % walls.length] + '")';
+    const url = 'url("' + walls[nextWallIdx()] + '")';
     if (animate && nxt) {
       nxt.style.backgroundImage = url;
       nxt.style.setProperty("opacity", "1", "important");
@@ -142,7 +162,7 @@
       .finally(() => {
         paintWall(false);
         if (WALL_CYCLE_MS > 0 && walls.length > 1) {
-          setInterval(() => { wallIdx++; paintWall(true); }, WALL_CYCLE_MS);
+          setInterval(() => paintWall(true), WALL_CYCLE_MS);
         }
       });
   }

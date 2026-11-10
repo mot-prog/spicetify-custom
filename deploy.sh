@@ -29,14 +29,38 @@ spicetify config extensions "cover-bg.js|hover-glow.js|spectrum.js"
 #    Run before AND after apply — apply may rebuild xpui from cache.
 copy_walls() {
   [ -d "$SPOTIFY_DIR/Apps/xpui/images" ] || return 0
-  cp -f "$R"/wallpapers/* "$SPOTIFY_DIR/Apps/xpui/images/" 2>/dev/null || true
-  python3 - "$R" "$SPOTIFY_DIR/Apps/xpui/images/acp-walls.json" <<'PY'
-import json, sys, glob, os
-r, out = sys.argv[1], sys.argv[2]
-names = []
+  # baked fallback wall stays at the images/ root (WALLS_FALLBACK in cover-bg.js)
+  cp -f "$R"/wallpapers/acp-wall-01.png "$SPOTIFY_DIR/Apps/xpui/images/" 2>/dev/null || true
+  # user wallpapers are downscaled/re-encoded (slideshow decodes them in CEF —
+  # 8-17MB 4-5K px originals would be wasteful) into images/acp-walls/
+  mkdir -p "$SPOTIFY_DIR/Apps/xpui/images/acp-walls"
+  python3 - "$R" "$SPOTIFY_DIR/Apps/xpui/images/acp-walls" "$SPOTIFY_DIR/Apps/xpui/images/acp-walls.json" <<'PY'
+import json, sys, glob, os, re
+r, wdir, out = sys.argv[1], sys.argv[2], sys.argv[3]
+walls = []
+try:
+    from PIL import Image
+except Exception:
+    Image = None
+files = []
 for pat in ("*.png", "*.jpg", "*.jpeg", "*.webp"):
-    names += [os.path.basename(p) for p in glob.glob(os.path.join(r, "wallpapers", pat))]
-json.dump({"walls": ["images/" + n for n in sorted(names)]}, open(out, "w"))
+    files += glob.glob(os.path.join(r, "wallpapers", pat))
+for p in sorted(files):
+    base = os.path.splitext(os.path.basename(p))[0]
+    if base == "acp-wall-01":
+        walls.append("images/acp-wall-01.png"); continue
+    if not Image:
+        print("PIL missing, skipping resize for", p, file=sys.stderr); continue
+    name = re.sub(r"[^a-z0-9._-]+", "-", base.lower()) + ".jpg"
+    try:
+        im = Image.open(p)
+        im.thumbnail((2560, 2560))
+        im.convert("RGB").save(os.path.join(wdir, name), "JPEG", quality=82)
+        walls.append("images/acp-walls/" + name)
+    except Exception as e:
+        print("wall skip", p, e, file=sys.stderr)
+json.dump({"walls": walls}, open(out, "w"))
+print("walls:", len(walls))
 PY
 }
 copy_walls
