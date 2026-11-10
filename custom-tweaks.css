@@ -658,3 +658,51 @@ html:root .e-10860-card__column > div:not(.e-10860-card__column) * {
   text-overflow: ellipsis !important;
   display: block;
 }
+
+/* ============ CUSTOM v36 (user m00495) ============
+   a) floating globalNav: give the scroll-node a top pad so the first shelf
+      row is no longer hidden under the chips/search row; entity pages keep
+      their own .main-entityHeader-top padding (:has guard). Verified: "Your
+      playlists" header clears the nav (v36-top.png).
+   b) mega feature cards (wrapper ^DTwvr): footer is hardcoded 136px and art
+      593px → always overflows the fixed 645px card by 19px; byline block
+      (first div) fixed 80px → 4 stacked lines. Clip card overflow, force the
+      byline to one ellipsized line. Verified: byline 22px inside card.
+   c) v35 descendants render inline so byline spans never stack. */
+html:root .main-view-container__scroll-node:not(:has(.main-entityHeader-top)) {
+  padding-top: 56px !important;
+}
+html:root div[class^="DTwvr"] {
+  overflow: hidden !important;
+}
+html:root footer[class^="YyKj"] > div:first-child,
+html:root footer[class^="YyKj"] > div:first-child * {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-height: 22px !important;
+}
+html:root .e-10860-card__column > div:not(.e-10860-card__column) * {
+  display: inline !important;
+}
+
+/* d) fold button (menu-fold.js): toggles body[data-acp-folded].
+   Folded hides home/vertical shelf <section>s in the main view; the
+   shortcuts hero row stays. Unfolded is the default. */
+html:root #acp-fold-btn {
+  position: absolute; top: 14px; right: 380px; z-index: 60;
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(15, 16, 24, 0.55);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  color: #fff; cursor: pointer; pointer-events: auto;
+  display: grid; place-items: center;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+html:root #acp-fold-btn:hover { background: rgba(255, 255, 255, 0.18); }
+html:root #acp-fold-btn svg { transition: transform 0.2s ease; }
+html:root #acp-fold-btn.folded svg { transform: rotate(180deg); }
+html:root body[data-acp-folded="1"] .Root__main-view section {
+  display: none !important;
+}
