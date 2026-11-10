@@ -1,153 +1,216 @@
-// ACP cover-bg v2: current track cover as a giant blurred window background (T1),
-// plus a song-color wash fed by 3 sampled cover colors (T4).
-// v2: multi-candidate sampling with saturation preference and theme-color fallback
-// (offline / gray placeholder covers previously produced gray washes).
+// cover-bg v3 — FIXED dark wallpaper background + song-color accent tokens.
+// v3 (user m00085): the background no longer tracks the album cover (light
+// covers blew out the contrast). It shows a fixed dark wallpaper from
+// images/acp-walls.json (deploy.sh ships wallpapers/* → xpui/images/ and
+// regenerates the manifest). WALL_CYCLE_MS > 0 enables a slideshow cycle.
+// The album cover is STILL sampled into --song-c1/2/3 so the album theme
+// (wash radials, progress bar, spectrum, right panel) stays all around.
 (() => {
-  if (window.__acpCoverBg) return;
-  window.__acpCoverBg = true;
+  const WALLS_MANIFEST = "images/acp-walls.json";
+  const WALLS_FALLBACK = ["images/acp-wall-01.png"];
+  const WALL_CYCLE_MS = 0; // e.g. 60000 to cycle wallpapers; 0 = static
 
-  const cache = new Map();
+  const clamp255 = (v) => Math.round(Math.max(0, Math.min(255, v)));
 
-  async function sample(url) {
-    if (cache.has(url)) return cache.get(url);
+  // sample an image region, favouring saturated pixels (grays/blacks wash out)
+  function sample(img, x, y, w, h) {
     try {
-      const blob = await (await fetch(url)).blob();
-      const bmp = await createImageBitmap(blob);
-      const c = new OffscreenCanvas(32, 32);
-      const ctx = c.getContext('2d');
-      ctx.drawImage(bmp, 0, 0, 32, 32);
-      const d = ctx.getImageData(0, 0, 32, 32).data;
-      const pix = [];
-      for (let i = 0; i < d.length; i += 4) pix.push([d[i], d[i + 1], d[i + 2]]);
-      const score = ([r, g, b]) => {
-        const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
-        if (mx < 40) return -1;               // skip near-black pixels
-        return (mx - mn) * 3 + mx * 0.15;     // favor SATURATION, not brightness
-      };
-      const picked = [];
-      const sorted = [...pix].sort((a, b) => score(b) - score(a));
-      for (const p of sorted) {
-        if (picked.every(q => Math.abs(q[0] - p[0]) + Math.abs(q[1] - p[1]) + Math.abs(q[2] - p[2]) > 90)) {
-          picked.push(p);
-          if (picked.length === 3) break;
-        }
+      const s = 12, c = document.createElement("canvas");
+      c.width = s; c.height = s;
+      const g = c.getContext("2d", { willReadFrequently: true });
+      g.drawImage(img, x, y, w, h, 0, 0, s, s);
+      const d = g.getImageData(0, 0, s, s).data;
+      let best = null, bestScore = -1;
+      for (let i = 0; i < d.length; i += 4) {
+        const r = d[i], gg = d[i + 1], b = d[i + 2];
+        const sat = Math.max(r, gg, b) - Math.min(r, gg, b);
+        const lum = 0.2126 * r + 0.7152 * gg + 0.0722 * b;
+        const score = sat * 1.6 + (255 - Math.abs(lum - 110)) * 0.4;
+        if (score > bestScore) { bestScore = score; best = [r, gg, b]; }
       }
-      while (picked.length < 3) picked.push(sorted[0]);
-      cache.set(url, picked);
-      return picked;
+      return best;
     } catch (e) { return null; }
   }
 
+  // Spotify's own palette for the current track (CORS-safe tiebreak fallback)
   function themeColors() {
-    const cs = getComputedStyle(document.documentElement);
-    const pick = v => (v || '').trim().split(/\s+/).map(Number);
-    return [pick(cs.getPropertyValue('--spice-rgb-secondary')),
-            pick(cs.getPropertyValue('--spice-rgb-button')),
-            pick(cs.getPropertyValue('--spice-rgb-button-active'))]
-      .filter(c => c.length === 3 && c.every(n => !isNaN(n)));
+    try {
+      const cp = typeof Spicetify !== "undefined" && Spicetify.colorPalette;
+      if (!cp) return null;
+      const one = (c) => {
+        if (!c) return null;
+        if (Array.isArray(c)) return [c[0], c[1], c[2]];
+        if (typeof c.r === "number") return [c.r, c.g, c.b];
+        return null;
+      };
+      const cols = [];
+      [cp.color, cp.colorSecondary, cp.colorTertiary, cp.colorAccent]
+        .forEach((c) => { const x = one(c); if (x) cols.push(x); });
+      return cols.length >= 3 ? cols.slice(0, 3) : null;
+    } catch (e) { return null; }
   }
 
-  async function bestColors(urls) {
-    let fallback = null;
-    for (const u of urls) {
-      const cols = await sample(u);
-      if (!cols) continue;
-      const sat = Math.max(...cols.map(([r, g, b]) => Math.max(r, g, b) - Math.min(r, g, b)));
-      if (sat >= 24) return cols;
-      if (!fallback) fallback = cols;
+  // host-agnostic: Spotify moved to image-cdn-*.spotifycdn.com and local
+  // files use spotify:localfileimage: — match any rendered img
+  const npArt = () => {
+    const imgs = document.querySelectorAll(".Root__now-playing-bar img");
+    for (const i of imgs) if (i.complete && i.naturalWidth > 16) return i;
+    return null;
+  };
+
+  function candidates() {
+    const out = [];
+    const art = npArt();
+    if (art && art.complete && art.naturalWidth > 16) {
+      const w = art.naturalWidth, h = art.naturalHeight;
+      out.push(art, [art, 0, 0, w, h], [art, 0, 0, w / 2, h / 2],
+        [art, w / 4, h / 4, w / 2, h / 2], [art, w * 0.66, 0, w * 0.34, h * 0.34]);
     }
-    const th = themeColors();
-    return th.length === 3 ? th : fallback;
+    document.querySelectorAll(".Root__main-view img").forEach((im) => {
+      if (im.src.startsWith("data:")) return;
+      if (im !== art && im.complete && im.naturalWidth >= 48) {
+        out.push(im, [im, 0, 0, im.naturalWidth * 0.5, im.naturalHeight * 0.5]);
+      }
+    });
+    return out;
   }
 
-  const mount = () => {
-    const tc = document.querySelector('.Root__top-container');
-    if (!tc) return setTimeout(mount, 500);
+  async function bestColors(list) {
+    const scored = [];
+    for (const cnd of list) {
+      const px = Array.isArray(cnd)
+        ? sample(cnd[0], cnd[1], cnd[2], cnd[3], cnd[4])
+        : sample(cnd, 0, 0, cnd.naturalWidth, cnd.naturalHeight);
+      if (px) scored.push(px);
+    }
+    if (scored.length < 3) return null;
+    // greedy spread: strongest, then most distant, then most distant from both
+    const dist = (a, b) => (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2;
+    const rank = (c) => (Math.max(...c) - Math.min(...c)) + Math.max(...c) * 0.3;
+    const pool = scored.slice().sort((a, b) => rank(b) - rank(a));
+    const c1 = pool.shift();
+    let c2 = pool.shift() || c1;
+    pool.sort((a, b) => Math.min(dist(b, c1), dist(b, c2)) - Math.min(dist(a, c1), dist(a, c2)));
+    const c3 = pool[0] || c2;
+    return [c1, c2, c3];
+  }
 
-    const mk = () => { const d = document.createElement('div'); d.className = 'acp-cover-bg'; tc.prepend(d); return d; };
-    let cur = mk(), nxt = mk();
-    nxt.style.opacity = '0';
-
-    const glow = document.createElement('div');
-    glow.className = 'acp-song-glow';
-    tc.append(glow);
-
-    const setTokens = cols => {
-      if (!cols || cols.length < 3) return;
-      tc.style.setProperty('--song-c1', cols[0].join(','));
-      tc.style.setProperty('--song-c2', cols[1].join(','));
-      tc.style.setProperty('--song-c3', cols[2].join(','));
-      glow.classList.add('on');
+  function setTokens(cols) {
+    const tc = document.querySelector(".Root__top-container");
+    if (!tc) return;
+    // LUMA CLAMP (m00085): light covers produced near-white accents that blew
+    // out wash/progress-bar contrast. Cap the brightest channel so accents
+    // stay legible on the dark wallpaper while keeping the hue.
+    const cap = (c) => {
+      const m = Math.max(c[0], c[1], c[2]);
+      return m > 190 ? [clamp255(c[0] * 190 / m), clamp255(c[1] * 190 / m), clamp255(c[2] * 190 / m)] : c;
     };
+    cols.slice(0, 3).forEach((c, i) => tc.style.setProperty("--song-c" + (i + 1), cap(c).join(",")));
+    const glow = document.querySelector(".acp-song-glow");
+    if (glow) glow.classList.add("on"); // v9-era CSS needs .on for opacity 1
+  }
 
-    // Spicetify.Player.getTrack() was REMOVED in this build (2.46.4 / Spotify 1.3.4).
-    // The now-playing bar's own artwork <img> is the reliable "current track art" source.
-    const npArt = () => {
-      const bar = document.querySelector('.main-nowPlayingBar-container') ||
-                  document.querySelector("[data-testid='now-playing-bar']") ||
-                  document.querySelector('.Root__now-playing-bar');
-      const i = bar && bar.querySelector("img[src*='scdn']");
-      return i && i.naturalWidth > 0 ? i.src : null;
-    };
+  // ---------- wallpaper layer (v3) ----------
+  let walls = WALLS_FALLBACK.slice();
+  let wallIdx = Math.floor(Math.random() * walls.length);
+  let cur = null, nxt = null;
 
-    const candidates = extra => {
-      const urls = [];
-      if (extra) urls.push(extra);
-      const a = npArt();
-      if (a && !urls.includes(a)) urls.push(a);
-      document.querySelectorAll("img[src*='scdn']").forEach(i => {
-        if (i.naturalWidth < 150 || urls.includes(i.src)) return;
-        // album art (ab67616d) is always real color artwork; prefer it over
-        // playlist/artist headers which can be small grayscale placeholders
-        if (/ab67616d|ab6770/.test(i.src)) urls.splice(Math.min(urls.length, 2), 0, i.src);
-        else urls.push(i.src);
+  function paintWall(animate) {
+    if (!cur) return;
+    const url = 'url("' + walls[wallIdx % walls.length] + '")';
+    if (animate && nxt) {
+      nxt.style.backgroundImage = url;
+      nxt.style.setProperty("opacity", "1", "important");
+      cur.style.setProperty("opacity", "0", "important");
+      const t = nxt; nxt = cur; cur = t;
+    } else {
+      cur.style.backgroundImage = url;
+      cur.style.setProperty("opacity", "1", "important");
+    }
+  }
+
+  function loadWalls() {
+    // manifest holds images/... paths; fall back silently to the baked wall
+    fetch(WALLS_MANIFEST, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (j && Array.isArray(j.walls) && j.walls.length) {
+          walls = j.walls.filter((w) => typeof w === "string" && w.length);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        paintWall(false);
+        if (WALL_CYCLE_MS > 0 && walls.length > 1) {
+          setInterval(() => { wallIdx++; paintWall(true); }, WALL_CYCLE_MS);
+        }
       });
-      return urls;
-    };
+  }
 
-    let lastUrl = "";
-    const set = (url) => {
-      lastUrl = url;
-      nxt.style.backgroundImage = `url("${url}")`;
-      nxt.style.opacity = '1';
-      cur.style.opacity = '0';
-      const t = cur; cur = nxt; nxt = t;
-      bestColors(candidates(url)).then(setTokens);
-    };
-
-    Spicetify.Player.addEventListener('songchange', ({ data }) => {
-      const img = data?.image || npArt();
-      if (img) set(img);
-      else { cur.style.opacity = '0'; bestColors(candidates()).then(setTokens); }
+  let lastArt = null;
+  function resync() {
+    const tc = document.querySelector(".Root__top-container");
+    if (!tc) return;
+    tc.classList.add("acp-artsync");
+    const th = themeColors();
+    bestColors(candidates()).then((cols) => {
+      const use = (cols && cols.length >= 3) ? cols : th;
+      if (use) setTokens(use);
     });
+  }
 
-    let tries = 0;
-    const boot = () => {
-      const a = npArt();
-      if (a) set(a);
-      else if (++tries < 20) setTimeout(boot, 1200);
-      else bestColors(candidates()).then(setTokens); // no track: DOM/theme-colored wash anyway
-    };
-    boot();
+  function mount() {
+    const tc = document.querySelector(".Root__top-container");
+    if (!tc) return;
+
+    // v3: fixed dark wallpaper layer (CSS: no blur, cover-fit) + song glow
+    cur = document.createElement("div");
+    cur.className = "acp-cover-bg";
+    nxt = document.createElement("div");
+    nxt.className = "acp-cover-bg";
+    nxt.style.setProperty("opacity", "0", "important");
+    const glow = document.createElement("div");
+    glow.className = "acp-song-glow";
+    tc.prepend(glow);
+    tc.prepend(cur);
+    tc.prepend(nxt);
+
+    loadWalls();
+
+    const art = npArt();
+    if (art) { lastArt = art; resync(); }
+    if (typeof Spicetify !== "undefined" && Spicetify.Player) {
+      Spicetify.Player.addEventListener("songchange", () => {
+        lastArt = null;
+        const a = npArt();
+        if (a) { lastArt = a; resync(); }
+        else { const th = themeColors(); if (th) setTokens(th); }
+      });
+    }
 
     // playback restored from a previous session does NOT fire songchange;
     // poll the now-playing artwork as the authoritative current-track source
     setInterval(() => {
       const img = npArt();
-      if (img && img !== lastUrl) set(img);
+      if (img && img !== lastArt) { lastArt = img; resync(); }
     }, 4000);
 
     // re-pick colors while the wash is desaturated (lazy DOM artwork)
     setInterval(() => {
-      const tc = document.querySelector(".Root__top-container");
-      if (!tc) return;
+      const tcx = document.querySelector(".Root__top-container");
+      if (!tcx) return;
       const sats = [1, 2, 3].map(i => {
-        const [r, g, b] = (tc.style.getPropertyValue("--song-c" + i) || "").split(",").map(Number);
+        const [r, g, b] = (tcx.style.getPropertyValue("--song-c" + i) || "").split(",").map(Number);
         return Number.isFinite(r) ? Math.max(r, g, b) - Math.min(r, g, b) : 0;
       });
       if (Math.max(...sats) < 24) bestColors(candidates()).then(c => { if (c) setTokens(c); });
     }, 2500);
-  };
+  }
 
-  mount();
+  // wait for .Root__top-container, then mount exactly once
+  let tries = 0;
+  const t = setInterval(() => {
+    if (document.querySelector(".Root__top-container")) { clearInterval(t); mount(); }
+    else if (++tries > 50) clearInterval(t);
+  }, 400);
 })();

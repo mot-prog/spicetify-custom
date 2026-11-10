@@ -618,4 +618,29 @@ html:root .Root__main-view [class*="legacy-box"]:has(.main-cardImage-imageWrappe
 html:root .Root__main-view [class*="legacy-box"]:has(.main-cardImage-imageWrapper) { height: 100%; }
 html:root .Root__main-view div:has(> div:not([class]) > [class*="legacy-box--naked"]) { display: grid; }
 
-/* v32 P) uniform card widths: force equal 1fr tracks on the hashed card-grid (TTqK unwrap made tracks content-sized → mixed widths + shrink) */
+
+
+/* ============================================================
+   CUSTOM v34 — FIXED dark wallpaper background (user m00085)
+   Light album covers blew out the adaptive background. The bg is now a fixed
+   dark wallpaper served from images/ (cover-bg.js v3 reads
+   images/acp-walls.json; repo wallpapers/ is the drop-folder; WALL_CYCLE_MS
+   in the extension enables a slideshow). The album theme stays everywhere
+   else: --song-c1/2/3 tokens (luma-capped at 190) drive the song-glow wash
+   ABOVE the wallpaper plus progress bar / spectrum / right-panel accents.
+   ============================================================ */
+html:root .acp-cover-bg {
+  filter: none !important;
+  opacity: 1 !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+/* v9 hid the glow because the cover-blur carried the color; with a static
+   wallpaper it is again the album-color wash "around the window" */
+html:root .acp-song-glow {
+  display: block !important;
+  background:
+    radial-gradient(65% 55% at 15% 0%, rgba(var(--song-c1, 26, 27, 38), 0.22) 0%, transparent 62%),
+    radial-gradient(55% 50% at 85% 8%, rgba(var(--song-c2, 26, 27, 38), 0.16) 0%, transparent 56%),
+    radial-gradient(60% 55% at 70% 100%, rgba(var(--song-c3, 26, 27, 38), 0.18) 0%, transparent 58%) !important;
+}
