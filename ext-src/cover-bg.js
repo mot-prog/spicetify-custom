@@ -10,6 +10,14 @@
   const WALLS_FALLBACK = ["images/acp-wall-01.png"];
   const WALL_CYCLE_MS = 45000; // slideshow interval; 0 = static single wall
 
+  let wallPaused = false;
+  try { wallPaused = localStorage.getItem("acp-walls-paused") === "1"; } catch (e) {}
+
+  function startCycle() {
+    if (WALL_CYCLE_MS <= 0 || walls.length < 2) return;
+    setInterval(() => { if (!wallPaused) paintWall(true); }, WALL_CYCLE_MS);
+  }
+
   const clamp255 = (v) => Math.round(Math.max(0, Math.min(255, v)));
 
   // sample an image region, favouring saturated pixels (grays/blacks wash out)
@@ -161,9 +169,17 @@
       .catch(() => {})
       .finally(() => {
         paintWall(false);
-        if (WALL_CYCLE_MS > 0 && walls.length > 1) {
-          setInterval(() => paintWall(true), WALL_CYCLE_MS);
-        }
+        startCycle();
+        // control API consumed by widgets.js (top-bar pause/next buttons)
+        window.ACPW = {
+          next: () => paintWall(true),
+          isPaused: () => wallPaused,
+          togglePaused: () => {
+            wallPaused = !wallPaused;
+            try { localStorage.setItem("acp-walls-paused", wallPaused ? "1" : "0"); } catch (e) {}
+            return wallPaused;
+          },
+        };
       });
   }
 

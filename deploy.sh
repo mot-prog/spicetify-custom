@@ -23,7 +23,7 @@ mv /tmp/user.base.css "$S/Themes/Sleek/user.css"
 # 3. enable extensions (2.46.4 wants the whole list, pipe-separated).
 #    Clear first: setting without clearing had accumulated duplicate entries.
 spicetify config extensions ""
-spicetify config extensions "cover-bg.js|hover-glow.js|spectrum.js|menu-fold.js"
+spicetify config extensions "cover-bg.js|hover-glow.js|spectrum.js|menu-fold.js|widgets.js"
 
 # 4. wallpaper assets (v34): wallpapers/ -> xpui/images/ + manifest for cover-bg.js.
 #    Run before AND after apply — apply may rebuild xpui from cache.

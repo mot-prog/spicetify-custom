@@ -706,3 +706,77 @@ html:root #acp-fold-btn.folded svg { transform: rotate(180deg); }
 html:root body[data-acp-folded="1"] .Root__main-view section {
   display: none !important;
 }
+
+/* ============================================================
+   CUSTOM v37 (user m00634: "correct things that don't match
+   together, adding tools, widgets…")
+   a) tracklist rows readable floating on the wallpaper
+   b) glass context menus (match the unified translucent look)
+   c) thin translucent scrollbars
+   d) top-bar widgets (widgets.js): clock chip + wallpaper
+      pause/next buttons, aligned with the fold button
+   ============================================================ */
+
+/* a) tracklist */
+html:root .Root__main-view .main-trackList-rowTitle,
+html:root .Root__main-view .main-trackList-column,
+html:root .Root__main-view .main-trackList-trackListHeaderRow * {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75) !important;
+}
+html:root .Root__main-view .main-trackList-rowTitle { color: #fff !important; }
+html:root .Root__main-view .main-trackList-trackListRow {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+html:root .Root__main-view .main-trackList-trackListRow:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+html:root .Root__main-view .main-trackList-trackListHeaderRow {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: #fff !important;
+}
+
+/* b) glass context menus */
+html:root [role="menu"] {
+  background: rgba(16, 17, 24, 0.88) !important;
+  backdrop-filter: blur(18px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 10px !important;
+}
+
+/* c) scrollbars */
+html:root ::-webkit-scrollbar { width: 10px; height: 10px; }
+html:root ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+html:root ::-webkit-scrollbar-track { background: transparent; }
+
+/* d) widgets */
+html:root #acp-clock {
+  position: absolute; top: 18px; right: 430px; z-index: 60;
+  display: flex; gap: 8px; align-items: center;
+  font-size: 12.5px; letter-spacing: 0.4px;
+  color: rgba(240, 244, 255, 0.85);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+}
+html:root #acp-clock-d { opacity: 0.6; }
+html:root #acp-clock-t { font-weight: 600; }
+html:root #acp-wall-next, html:root #acp-wall-pause {
+  position: absolute; top: 14px; z-index: 60;
+  width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(15, 16, 24, 0.55);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  color: #fff; cursor: pointer; pointer-events: auto;
+  transition: background 0.15s ease;
+}
+html:root #acp-wall-next { right: 336px; }
+html:root #acp-wall-pause { right: 298px; }
+html:root #acp-wall-next:hover, html:root #acp-wall-pause:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
