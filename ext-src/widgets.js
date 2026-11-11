@@ -43,14 +43,13 @@
     mk("acp-wall-next", svgNext, "Next wallpaper", () => window.ACPW && window.ACPW.next());
     if (window.ACPW && window.ACPW.isPaused()) pb.innerHTML = svgPlay;
 
-    // live sliders (user m00865): block-bg opacity + wallpaper blur
-    const KEY = "acp-tune";
-    let tune = { o: 0, b: 0 };
-    try { tune = Object.assign(tune, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
+    // live sliders (user m00865 + m00923): blocks opacity delta + wallpaper blur.
+    // Always start at 0 (0 = current look); NOT persisted on purpose.
+    const tune = { o: 0, b: 0 };
     const applyTune = () => {
       const st = document.documentElement.style;
-      st.setProperty("--acp-block-a", (Math.max(0, Math.min(60, tune.o)) / 100).toFixed(3));
-      st.setProperty("--acp-wall-blur", Math.max(0, Math.min(40, tune.b)) + "px");
+      st.setProperty("--acp-block-d", (Math.max(0, Math.min(60, tune.o)) / 100).toFixed(3));
+      st.setProperty("--acp-wall-blur", Math.max(0, Math.min(20, tune.b)) + "px");
     };
     applyTune();
     const tb = mk("acp-tune-btn",
@@ -63,14 +62,13 @@
     panel.id = "acp-tune-panel";
     panel.innerHTML =
       '<label><span>Fond des blocs</span><input id="acp-tune-o" type="range" min="0" max="60" step="1" value="' + tune.o + '"></label>' +
-      '<label><span>Flou du fond d\u2019écran</span><input id="acp-tune-b" type="range" min="0" max="40" step="1" value="' + tune.b + '"></label>';
+      '<label><span>Flou du fond d\u2019écran</span><input id="acp-tune-b" type="range" min="0" max="20" step="1" value="' + tune.b + '"></label>';
     nav.appendChild(panel);
     const bind = (id, k) => {
       const el = document.getElementById(id);
       el.addEventListener("input", () => {
         tune[k] = +el.value;
         applyTune();
-        try { localStorage.setItem(KEY, JSON.stringify(tune)); } catch (e) {}
       });
     };
     bind("acp-tune-o", "o");

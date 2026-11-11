@@ -781,8 +781,12 @@ html:root #acp-wall-next:hover, html:root #acp-wall-pause:hover {
   background: rgba(255, 255, 255, 0.18);
 }
 
-/* ─── CUSTOM v38: live sliders — block bg opacity + wallpaper blur (user m00865) ─── */
-html:root .acp-cover-bg { filter: blur(var(--acp-wall-blur, 0px)) !important; }
+/* ─── CUSTOM v39: live sliders — individual BLOCKS opacity + wallpaper blur (user m00923:
+   don't touch the large panel backgrounds; only blocks; blur gentler) ─── */
+html:root .acp-cover-bg {
+  filter: blur(var(--acp-wall-blur, 0px)) !important;
+  transition: filter 0.3s ease-out;
+}
 html:root #acp-tune-btn {
   position: absolute; top: 14px; right: 260px; z-index: 60;
   width: 34px; height: 34px; border-radius: 50%;
@@ -817,10 +821,13 @@ html:root #acp-tune-panel input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
   background: #fff; box-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
 }
-/* block tint LAST: same specificity as v12 transparent rule but later → wins */
-html:root .Root__main-view,
-html:root .Root__nav-bar,
-html:root .Root__right-sidebar,
-html:root .Root__now-playing-bar {
-  background: rgba(14, 15, 22, var(--acp-block-a, 0)) !important;
+/* blocks ONLY (user m00923): retint the surfaces that already paint; slider is a
+   DELTA on the .38 whisper (0 = today's exact look). Big panels stay untouched/transparent.
+   Written last so same-specificity later rules win the cascade. */
+html:root [class*="legacy-list-row"]:not([class*="__"]):not([class*="e-10860-text"]):not(:hover),
+html:root .view-homeShortcutsGrid-shortcut:not(:hover),
+html:root .main-nowPlayingView-container div:has(> [class*="main-nowPlayingView-section"]),
+html:root .main-nowPlayingView-container [class*="a39VsF1tgWmuBGM6uZHn"],
+html:root .main-nowPlayingView-container [class*="TTAUOoM1H9hIgl6A0DvB"] {
+  background: rgba(16, 17, 24, calc(0.38 + var(--acp-block-d, 0))) !important;
 }
