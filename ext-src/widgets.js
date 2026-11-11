@@ -42,6 +42,39 @@
     });
     mk("acp-wall-next", svgNext, "Next wallpaper", () => window.ACPW && window.ACPW.next());
     if (window.ACPW && window.ACPW.isPaused()) pb.innerHTML = svgPlay;
+
+    // live sliders (user m00865): block-bg opacity + wallpaper blur
+    const KEY = "acp-tune";
+    let tune = { o: 0, b: 0 };
+    try { tune = Object.assign(tune, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
+    const applyTune = () => {
+      const st = document.documentElement.style;
+      st.setProperty("--acp-block-a", (Math.max(0, Math.min(60, tune.o)) / 100).toFixed(3));
+      st.setProperty("--acp-wall-blur", Math.max(0, Math.min(40, tune.b)) + "px");
+    };
+    applyTune();
+    const tb = mk("acp-tune-btn",
+      '<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 4.5h6.5M12 4.5h2M2 11.5h2M7.5 11.5H14"/><circle cx="10" cy="4.5" r="1.8" fill="currentColor" stroke="none"/><circle cx="5" cy="11.5" r="1.8" fill="currentColor" stroke="none"/></svg>',
+      "Réglages verre / fond", () => {
+        const p = document.getElementById("acp-tune-panel");
+        if (p) p.classList.toggle("open");
+      });
+    const panel = document.createElement("div");
+    panel.id = "acp-tune-panel";
+    panel.innerHTML =
+      '<label><span>Fond des blocs</span><input id="acp-tune-o" type="range" min="0" max="60" step="1" value="' + tune.o + '"></label>' +
+      '<label><span>Flou du fond d\u2019écran</span><input id="acp-tune-b" type="range" min="0" max="40" step="1" value="' + tune.b + '"></label>';
+    nav.appendChild(panel);
+    const bind = (id, k) => {
+      const el = document.getElementById(id);
+      el.addEventListener("input", () => {
+        tune[k] = +el.value;
+        applyTune();
+        try { localStorage.setItem(KEY, JSON.stringify(tune)); } catch (e) {}
+      });
+    };
+    bind("acp-tune-o", "o");
+    bind("acp-tune-b", "b");
     return true;
   }
 
